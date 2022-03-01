@@ -1,13 +1,5 @@
-
-from multiprocessing import context
-
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import Group
-from django.shortcuts import redirect, render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-
-from login import serializers
 
 from .forms import *
 from .models import *
@@ -22,13 +14,13 @@ def getRoutes(request):
 
     routes = [
         {
-            'Endpoint': '/login',
+            'Endpoint': 'login/',
             'method': 'POST',
             'body': None,
             'description': 'User Login Page'
         },
         {
-            'Endpoint': '/signup',
+            'Endpoint': 'register/',
             'method': 'POST',
             'body': None,
             'description': 'User Registration Page'
@@ -37,10 +29,17 @@ def getRoutes(request):
     return Response(routes)
 
 
+@api_view(['GET'])
+def usersList(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+
 @api_view(['POST'])
 def registrationPage(request):
-    data = request.data
-    serializer = UserSerializer(data, many=False)
+    serializer = UserSerializer(data=request.data)
+    data = {}
     if serializer.is_valid():
         serializer.save()
         data['response'] = "Successfully Created the User"
@@ -48,7 +47,9 @@ def registrationPage(request):
         data = serializer.errors
     return Response(data)
 
+
 @api_view(['POST'])
 def loginPage(request):
     data = request.data
+
     return Response(data)
